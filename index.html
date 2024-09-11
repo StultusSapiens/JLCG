@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>CodePen - Character Info Page</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Information</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/ScrollToPlugin.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            color: #ffffff;
+        }
+        #container {
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+        .page {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            overflow: hidden;
+        }
+        #page1 {
+            background: url('https://i.imgur.com/Wy6WMsA.jpg') center/cover no-repeat;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            color: white;
+        }
+        .gradient-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,1), rgba(0,0,0,0));
+        }
+        #animated-text {
+            font-size: 2em;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            z-index: 1;
+            margin-bottom: 50px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+        #page2 {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 1)), url('https://i.imgur.com/Wy6WMsA.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+        }
+        #biography-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .tab {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 0;
+        }
+        .tab button {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #ffffff;
+            font-size: 1.2em;
+            position: relative;
+        }
+        .tab button::after {
+            position: absolute;
+            content: '';
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #ddd;
+            transition: all 0.3s ease-in-out;
+        }
+        .tab button:hover::after, .tab button.active::after {
+            width: 100%;
+            left: 0;
+        }
+        .tabcontent {
+            display: none;
+            padding: 20px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+        .spoiler-warning {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 100;
+        }
+        .spoiler-warning button {
+            background-color: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+        .spoiler-warning button:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+        #page3 {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://i.imgur.com/Wy6WMsA.jpg') center/cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .creator-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .creator-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        #creator-pfp {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: url('https://s3.us-west-1.amazonaws.com/ai-character/uploaded/c/image/1725041744153_d44c5451.webp') center/cover no-repeat;
+            margin-right: 2rem;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            flex-shrink: 0; /* Prevent the image from shrinking */
+        }
+        #creator-pfp:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+        }
+        #creator-name {
+            font-size: 2.5em;
+            margin: 0;
+        }
+        .creator-title {
+            font-size: 1.2em;
+            color: #b3b3b3;
+            margin-top: 0.5rem;
+        }
+        .creator-bio {
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            position: relative;
+            padding-left: 20px;
+        }
+        .creator-bio::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #007bff, #00ff88);
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: transform 0.5s ease;
+        }
+        .creator-bio:hover::before {
+            transform: scaleY(1);
+        }
+        .creator-link {
+            display: inline-block;
+            color: #ffffff;
+            background-color: rgba(0, 123, 255, 0.2);
+            text-decoration: none;
+            padding: 10px 20px;
+            border: 2px solid #007bff;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            min-width: 150px; /* Add a minimum width to prevent shrinking */
+            text-align: center; /* Center the text within the button */
+        }
+        .creator-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: all 0.5s;
+        }
+        .creator-link:hover::before {
+            left: 100%;
+        }
+        .creator-link:hover {
+            background-color: #007bff;
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+        .line-art {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+        .line-art .line {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .line-art .line-1 {
+            width: 2px;
+            height: 100%;
+            left: 20%;
+            transform-origin: top;
+        }
+        .line-art .line-2 {
+            width: 100%;
+            height: 2px;
+            top: 30%;
+            transform-origin: left;
+        }
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 20;
+        }
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.3);
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        .nav-dot:hover {
+            transform: scale(1.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="page1" class="page">
+            <div class="gradient-overlay"></div>
+            <h1 id="animated-text">Character Name</h1>
+        </div>
+        <div id="page2" class="page">
+            <div class="spoiler-warning">
+                <h2>Spoiler Warning!</h2>
+                <p>The following content contains spoilers about the character's story.</p>
+                <button onclick="revealContent()">Show Content</button>
+            </div>
+            <div id="biography-content" style="display: none;">
+                <div class="tab">
+                    <button class="tablinks" onclick="openTab(event, 'Relationships')">Relationships</button>
+                    <button class="tablinks" onclick="openTab(event, 'Backstory')">Backstory</button>
+                    <button class="tablinks" onclick="openTab(event, 'World')">World</button>
+                    <button class="tablinks" onclick="openTab(event, 'Likes')">Likes</button>
+                </div>
+                <div id="Relationships" class="tabcontent">
+                    <h3>Relationships</h3>
+                    <p>Character relationships will be displayed here. Character relationships will be displayed here. Character relationships will be displayed here. Character relationships will be displayed here.</p>
+                </div>
+                <div id="Backstory" class="tabcontent">
+                    <h3>Backstory</h3>
+                    <p>Character backstory will be displayed here.</p>
+                </div>
+                <div id="World" class="tabcontent">
+                    <h3>World</h3>
+                    <p>Information about the character's world will be displayed here.</p>
+                </div>
+                <div id="Likes" class="tabcontent">
+                    <h3>Likes</h3>
+                    <p>Character's preferences and likes will be displayed here.</p>
+                </div>
+            </div>
+        </div>
+        <div id="page3" class="page">
+            <div class="creator-card">
+                <div class="line-art">
+                    <div class="line line-1"></div>
+                    <div class="line line-2"></div>
+                </div>
+                <div class="creator-header">
+                    <div id="creator-pfp"></div>
+                    <div>
+                        <h2 id="creator-name">🅷🆄🅼🅰🅽</h2>
+                        <p class="creator-title">😊Your Friendly Neighborhood BOT Pimp😊</p>
+                    </div>
+                </div>
+                <p class="creator-bio">Hey, if you want to chat with my other bots, you can visit my profile by clicking the button below</p>
+                <a href="" class="creator-link">My Profile</a>
+            </div>
+        </div>
+    </div>
+    <div class="nav-dots"></div>
+    <script>
+    const container = document.getElementById('container');
+    const pages = document.querySelectorAll('.page');
+    const navDots = document.querySelector('.nav-dots');
+    let currentPage = 0;
+    let isScrolling = false;
+
+    // Create navigation dots
+    pages.forEach((_, index) => {
+        const dot = document.createElement('div');
+        dot.classList.add('nav-dot');
+        dot.addEventListener('click', () => smoothScroll(index));
+        navDots.appendChild(dot);
+    });
+
+    const dots = document.querySelectorAll('.nav-dot');
+
+    function updateActiveDot() {
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentPage);
+        });
+    }
+
+    function smoothScroll(targetIndex) {
+        if (isScrolling) return;
+        isScrolling = true;
+        gsap.to(container, {
+            duration: 1,
+            scrollTo: { y: pages[targetIndex], autoKill: false },
+            ease: "power2.inOut",
+            onComplete: () => {
+                isScrolling = false;
+                currentPage = targetIndex;
+                updateActiveDot();
+                if (currentPage === 2) {
+                    animateCreatorPage();
+                }
+            }
+        });
+    }
+
+    function handleScroll(e) {
+        if (isScrolling) {
+            e.preventDefault();
+            return;
+        }
+
+        const delta = e.deltaY;
+        if (delta > 0 && currentPage < pages.length - 1) {
+            smoothScroll(currentPage + 1);
+        } else if (delta < 0 && currentPage > 0) {
+            smoothScroll(currentPage - 1);
+        }
+    }
+
+    container.addEventListener('wheel', handleScroll, { passive: false });
+
+    // Touch events for mobile
+    let touchStartY = 0;
+    let touchEndY = 0;
+
+    container.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+    });
+
+    container.addEventListener('touchend', (e) => {
+        touchEndY = e.changedTouches[0].clientY;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const swipeDistance = touchStartY - touchEndY;
+        if (Math.abs(swipeDistance) > 50) { // Minimum swipe distance
+            if (swipeDistance > 0 && currentPage < pages.length - 1) {
+                smoothScroll(currentPage + 1);
+            } else if (swipeDistance < 0 && currentPage > 0) {
+                smoothScroll(currentPage - 1);
+            }
+        }
+    }
+
+    function revealContent() {
+        gsap.to('.spoiler-warning', {duration: 1, opacity: 0, scale: 1.1, ease: "power2.out", onComplete: () => {
+            document.querySelector('.spoiler-warning').style.display = 'none';
+            document.getElementById('biography-content').style.display = 'flex';
+            gsap.from('#biography-content', {duration: 1, opacity: 0, y: 50, ease: "power3.out"});
+        }});
+    }
+
+    function openTab(evt, tabName) {
+        var i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("tabcontent");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("tablinks");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        gsap.from(`#${tabName}`, {duration: 0.5, opacity: 0, y: 20, ease: "power2.out"});
+        document.getElementById(tabName).style.display = "block";
+        evt.currentTarget.className += " active";
+    }
+
+    // GSAP animations
+    gsap.from("#animated-text", {duration: 2, opacity: 0, y: 50, ease: "power3.out"});
+    
+    function animateCreatorPage() {
+            gsap.from(".creator-card", {duration: 1, opacity: 0, y: 30, ease: "power3.out"});
+            gsap.from("#creator-pfp", {
+                duration: 1, 
+                opacity: 0, 
+                scale: 0.5, 
+                ease: "back.out(1.7)", 
+                delay: 0.3,
+                clearProps: "all" // Clear all inline styles after animation
+            });
+            gsap.from("#creator-name", {duration: 1, opacity: 0, x: -30, ease: "power3.out", delay: 0.5});
+            gsap.from(".creator-title", {duration: 1, opacity: 0, x: -30, ease: "power3.out", delay: 0.7});
+            gsap.from(".creator-bio", {duration: 1, opacity: 0, y: 20, ease: "power3.out", delay: 0.9});
+            gsap.from(".creator-link", {
+                duration: 1, 
+                opacity: 0, 
+                y: 20, 
+                ease: "power3.out", 
+                delay: 1.1,
+                clearProps: "all" // Clear all inline styles after animation
+            });
+            
+            // Animate line art
+            gsap.from(".line-1", {duration: 1.5, scaleY: 0, ease: "power3.out", delay: 1.3});
+            gsap.from(".line-2", {duration: 1.5, scaleX: 0, ease: "power3.out", delay: 1.5});
+        }
+
+    // Initialize animations
+    window.addEventListener('load', () => {
+        updateActiveDot();
+        if (currentPage === 2) {
+            animateCreatorPage();
+        }
+    });
+
+    // Optimize scroll performance
+    let ticking = false;
+    container.addEventListener('scroll', function(e) {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                let scrollPosition = container.scrollTop;
+                currentPage = Math.round(scrollPosition / window.innerHeight);
+                updateActiveDot();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // Preload images
+    function preloadImage(url) {
+        const img = new Image();
+        img.src = url;
+    }
+
+    preloadImage('https://i.imgur.com/Wy6WMsA.jpg');
+    preloadImage('https://s3.us-west-1.amazonaws.com/ai-character/uploaded/c/image/1725041744153_d44c5451.webp');
+
+    </script>
+</body>
+</html>
+<!-- partial -->
+  
+</body>
+</html>
